@@ -21,12 +21,16 @@ class DuperFivish(IStrategy):
     # Minimal ROI designed for the strategy.
     # This attribute will be overridden if the config file contains "minimal_roi"
     minimal_roi = {
-        "0": 0.01
+        "0": 0.15
     }
 
     # Optimal stoploss designed for the strategy
     # This attribute will be overridden if the config file contains "stoploss"
-    stoploss = -0.045
+    stoploss = -0.05
+    trailing_stop = True
+    trailing_stop_positive = 0.0025
+    trailing_stop_positive_offset = 0.006
+    trailing_only_offset_is_reached = True
 
     # Optimal ticker interval for the strategy
     ticker_interval = '5m'
@@ -35,7 +39,7 @@ class DuperFivish(IStrategy):
     'buy': 'limit',
     'sell': 'limit',
     'emergencysell': 'market',
-    'stoploss': 'market',
+    'stoploss': 'limit',
     'stoploss_on_exchange': True,
     'stoploss_on_exchange_interval': 60,
     'stoploss_on_exchange_limit_ratio': 0.99
@@ -117,13 +121,16 @@ class DuperFivish(IStrategy):
             (
                     (
                             (
+                                    #(dataframe['close'] == dataframe['min']) &
+                                    (dataframe['close'] <= dataframe['bb_lowerband'])&
+                                    (dataframe['close'].shift(1) < dataframe['ema_{}'.format(self.EMA_SHORT_TERM)]) &
                                     (dataframe['close'] < dataframe['ema_{}'.format(self.EMA_SHORT_TERM)]) &
                                     (dataframe['ema_{}'.format(self.EMA_SHORT_TERM)] < dataframe['ema_{}'.format(self.EMA_LONG_TERM)]) &
-                                    (dataframe['ema_{}'.format(self.EMA_LONG_TERM)] > dataframe['ema_{}'.format(self.EMA_MEDIUM_TERM)]) &
-                                    (dataframe['close'].shift(1) > dataframe['open'].shift(1)) &
-                                    (dataframe['close'].shift(2) < dataframe['open'].shift(2))&
-                                    (dataframe['ema20'] > dataframe['ema5']*1.003)&
-                                    (dataframe['ema20'] > dataframe['ema12']*1.0035)
+                                    (dataframe['ema_{}'.format(self.EMA_LONG_TERM)] > dataframe['ema_{}'.format(self.EMA_MEDIUM_TERM)]) 
+                                    #(dataframe['close'].shift(1) > dataframe['open'].shift(1)) &
+                                    #(dataframe['close'].shift(2) < dataframe['open'].shift(2))&
+                                    #(dataframe['ema20'] > dataframe['ema5']*1.003)&
+                                    #(dataframe['ema20'] > dataframe['ema12']*1.0035)
                                     
                                     
                             )
