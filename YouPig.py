@@ -53,7 +53,7 @@ class YouPig(IStrategy):
     EMA_SHORT_TERM = 5
     EMA_MEDIUM_TERM = 10
     EMA_LONG_TERM = 20
-
+    EMA_XTRA_LONG_TERM = 200
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         dataframe = self.resample(dataframe, self.ticker_interval, self.resample_factor)
@@ -70,6 +70,7 @@ class YouPig(IStrategy):
         dataframe['ema_{}'.format(self.EMA_LONG_TERM)] = ta.EMA(
             dataframe, timeperiod=self.EMA_LONG_TERM
         )
+         
 
 
         
@@ -94,6 +95,7 @@ class YouPig(IStrategy):
         dataframe['ema5'] = ta.EMA(dataframe, timeperiod=5)
         dataframe['ema12'] = ta.EMA(dataframe, timeperiod=12)
         dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
+        dataframe['ema200'] = ta.EMA(dataframe, timeperiod=200)
 
 
         dataframe['adx'] = ta.ADX(dataframe, timeperiod=14)
@@ -138,8 +140,8 @@ class YouPig(IStrategy):
                             # which has to be below a very slow average
                             # this pattern only catches a few, but normally very good buy points
                             (
-                                  
-                                    (dataframe['ema_{}'.format(self.EMA_SHORT_TERM, self.resample_factor2)] < dataframe['ema_{}'.format(self.EMA_MEDIUM_TERM, self.resample_factor2)]) 
+                                     (dataframe['close'] > dataframe['ema200'])
+                                    &(dataframe['ema_{}'.format(self.EMA_SHORT_TERM, self.resample_factor2)] < dataframe['ema_{}'.format(self.EMA_MEDIUM_TERM, self.resample_factor2)]) 
                                     &(dataframe['ema_{}'.format(self.EMA_LONG_TERM, self.resample_factor2)] > dataframe['ema_{}'.format(self.EMA_MEDIUM_TERM, self.resample_factor2)])
                                     #&(dataframe['close'] < dataframe['ema_{}'.format(self.EMA_LONG_TERM, self.resample_factor2)]) 
                                     &(dataframe['ema_{}'.format(self.EMA_SHORT_TERM)] < dataframe['ema_{}'.format(self.EMA_LONG_TERM)]) 
